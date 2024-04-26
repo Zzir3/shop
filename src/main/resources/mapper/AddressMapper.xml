@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace指向mapper.xml所对应的Mapper接口-->
+
+<mapper namespace="com.example.demo.mapper.AddressMapper">
+
+    <select id="getAllAddresses" resultType="com.example.demo.pojo.Address">
+        SELECT * FROM address
+    </select>
+    <select id="findById" parameterType="int" resultType="Address">
+        select * from address where id=#{id}
+    </select>
+    <!-- 模糊查询 -->
+
+    <select id="findByProp" resultMap="mapData" parameterType="HashMap">
+
+        <!-- 注意每一行后面至少要一个空格，小心语句拼接出错 -->
+
+        select * from address a
+
+        join province p on p.id=a.province_id
+
+        join city c on c.id=a.city_id
+
+        join region r on r.id=a.region_id
+
+        join town t on t.id=a.town_id
+
+        join street s on s.id=a.street_id
+
+        <trim prefix="where" prefixOverrides="and | or">
+
+            <if test="id != null and id != ''">
+
+                customer_id=#{id}
+
+            </if>
+
+        </trim>
+
+    </select>
+
+
+
+    <!--自定义结果映射-->
+
+    <resultMap id="mapData" type="Address">
+
+        <id column="id" property="id"/>
+        <result column="province_id" property="province_id"/>
+        <result column="city_id" property="city_id"/>
+        <result column="region_id" property="region_id"/>
+        <result column="detail" property="detail"/>
+        <result column="town_id" property="town_id"/>
+        <result column="street_id" property="street_id"/>
+        <result column="postcode" property="postcode"/>
+        <result column="customer_id" property="customer_id"/>
+        <result column="isDefault" property="isDefault"/>
+
+        <!--其它的findById一定要先行实现并测试通过-->
+
+        <association property="province" column="prov_id" select="com.example.demo.mapper.ProvinceMapper.findById"/>
+
+        <association property="city" column="city_id" select="com.example.demo.mapper.CityMapper.findById"/>
+
+        <association property="region" column="region_id" select="com.example.demo.mapper.RegionMapper.findById"/>
+
+        <association property="town" column="town_id" select="com.example.demo.mapper.TownMapper.findById"/>
+
+        <association property="street" column="street_id" select="com.example.demo.mapper.StreetMapper.findById"/>
+
+    </resultMap>
+    <insert id="insertAddress" parameterType="com.example.demo.pojo.Address">
+        INSERT INTO address (province_id, city_id, region_id, detail, town_id, customer_id, street_id, postcode,  isDefault)
+        VALUES (#{province_id}, #{city_id}, #{region_id}, #{detail}, #{town_id}, #{customer_id}, #{street_id}, #{postcode},  #{isDefault})
+    </insert>
+
+    <select id="selectAddressesByCustomerId" resultMap="mapData">
+        SELECT * FROM address WHERE customer_id = #{customerId}
+    </select>
+
+    <select id="selectAddressById" resultMap="mapData">
+        SELECT * FROM address WHERE id = #{id}
+    </select>
+
+    <update id="updateAddress" parameterType="com.example.demo.pojo.Address">
+        UPDATE address
+        SET province_id = #{province_id}, city_id = #{city_id}, region_id = #{region_id}, detail = #{detail}, town_id = #{town_id}, street_id = #{street_id}, postcode = #{postcode}, customer_id = #{customer_id}, isDefault = #{isDefault}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteAddress">
+        DELETE FROM address WHERE id = #{id}
+    </delete>
+</mapper>

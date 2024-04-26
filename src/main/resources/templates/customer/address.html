@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+
+  <script th:src="@{/js/jquery-1.10.2.min.js}"></script>
+
+  <script th:src="@{/js/bootstrap.min.js}"></script>
+
+  <script th:src="@{/js/echarts.min.js}"></script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <title>地址管理</title>
+
+</head>
+
+<body>
+<div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+<div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+<div class="container">
+
+
+
+  <!--    header-->
+
+  <div class="row clearfix">
+
+    <div class="col-md-12 column" th:include="common/header.html">
+
+    </div>
+
+  </div>
+
+  <!--    center-->
+
+  <div class="row clearfix">
+
+    <!--        个人中心管理菜单-->
+
+    <div class="col-md-2 column" th:include="common/infoMenu.html">
+
+    </div>
+
+    <!--        个人中心相关管理子界面-->
+
+    <div class="col-md-6 column">
+      <h3>
+        你的地址
+      </h3>
+      <div>
+        <h5 class="alert alert-danger" th:each="a:${as}">
+          <span th:text="${a.province.ename}"></span>
+          <span th:text="${a.city.bname}"></span>
+          <span th:text="${a.region.fname}"></span>
+          <span th:text="${a.town.tname}"></span>
+          <span th:text="${a.street.sname}"></span>
+          <span th:text="${a.detail}"></span>
+          <span class="text-success" th:if="${a.isDefault}">
+                        默认地址
+                    </span>
+        </h5>
+      </div>
+
+      <a id="modal-665221" href="#modal-container-665221" role="button" class="btn"
+         data-toggle="modal">新增地址</a>
+      <ul id="addressList"></ul>
+      <div class="modal fade" id="modal-container-665221" role="dialog" aria-labelledby="myModalLabel"
+           aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+              <h4 class="modal-title" id="myModalLabel">
+                请选择地址：
+              </h4>
+            </div>
+            <form id="addAddressForm" th:action="@{/addAddress}" method="post">
+              <input type="hidden" name="customer_id" th:value="${session.customer.id}"/>
+              <div class="form-horizontal">
+                <div class="modal-body">
+                  <div class="form-group">
+                    <div class="col-sm-4">
+                      <select name="province_id" id="selProvince" class="form-control">
+                        <option value="">请选择省份</option>
+                        <option th:each="p:${ps}" th:value="${p.id}">
+                          <span th:text="${p.ename}"></span>
+                        </option>
+                      </select>
+                    </div>
+                    <div class="col-sm-4">
+                      <select name="city_id" id="selCity" class="form-control">
+                        <!-- <option value="">城市</option> -->
+                      </select>
+                    </div>
+                    <div class="col-sm-4">
+                      <select name="region_id" id="selRegion" class="form-control">
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-4">
+                      <select name="town_id" id="selTown" class="form-control">
+                      </select>
+                    </div>
+                    <div class="col-sm-8">
+                      <select name="street_id" id="selStreet" class="form-control">
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <input type="text" name="detail" id="detailAddress" class="form-control"
+                             placeholder="请输入详细地址"/>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label id="fullAddress" name="fullAddress" class="col-sm-12">
+                      广东省广州市从化区太平镇明珠路38号星汇峰小区3-1301
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
+                <button type="submit" class="btn btn-primary" onblur="a()">添加地址</button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--    -->
+  <!--    footer-->
+
+  <div class="row clearfix">
+    <div class="col-md-12 column" th:include="common/footer.html">
+    </div>
+  </div>
+</div>
+</body>
+</html>
+<script>
+
+  $(function () {
+
+    //由于要实现联动效果，所以当选择的省份发生改变，要将之前选择的市、县的下拉列表全部清空，再重新添加
+
+    //province-->city
+
+    var fullAddress = "";
+
+    var provinceValue;
+
+    var provinceText = "";
+
+    var cityValue;
+
+    var cityText = "";
+
+    var districtValue;
+
+    var districtText = "";
+
+    var townValue;
+
+    var townText = "";
+
+    var streetValue;
+
+    var streetText = "";
+
+    var detailAddress = "";
+
+    //$("#fullAddress").innerText="";
+
+    $("#selProvince").change(function () {
+
+      $("#selCity").empty().append('<option value="">请选择城市</option>');
+
+      if ($(this).val() != "") {
+
+        provinceValue = $(this).val();//获取option的value,到时写进数据表
+
+        provinceText = $(this).find("option:selected").text();  //获取Select选择的Text
+
+      }
+
+
+
+      //$("#fullAddress").html(provinceText);
+
+      showAddressInfo();
+
+      $.ajax({
+
+        url: "/customer/getCities",
+
+        type: 'get',
+
+        data: {
+
+          "prov_id": $(this).val()
+
+        }
+
+      }).done(function (data) {
+
+        // console.log(data);
+
+        //将选择的当前省份的所有市循环添加到下拉列表中
+
+        for (var i = 0; i < data.length; i++) {
+
+          $new = $("<option value=" + data[i].id + ">" + data[i].bname + "</option>");
+
+          // console.log($new);
+
+          $("#selCity").append($new);
+
+        }
+
+      });
+
+    });
+
+    //city-->district
+
+    $("#selCity").change(function () {
+
+      //同理，当选择的市发生改变时，清空之前选择的县
+
+      $("#selRegion").empty().append('<option value="">请选择区/县</option>');
+
+      if ($(this).val() != "") {
+
+        cityValue = $(this).val();//获取option的value,到时写进数据表
+
+        cityText = $(this).find("option:selected").text();  //获取Select选择的Text
+
+      }
+
+      //$("#fullAddress").html(provinceText);
+
+      showAddressInfo();
+
+      $.ajax({
+
+        url: '/customer/getRegions',
+
+        type: 'get',
+
+        data: {
+
+          "city_id": $(this).val()
+
+        }
+
+      }).done(function (data) {
+
+        //重新循环添加当前市的所有县
+
+        for (var i = 0; i < data.length; i++) {
+
+          $new = $("<option value=" + data[i].id + ">" + data[i].fname + "</option>");
+
+          $("#selRegion").append($new);
+
+        }
+
+      });
+
+    });
+
+
+
+    //district-->town
+
+    $("#selRegion").change(function () {
+
+      //同理，当选择的区发生改变时，清空之前选择的乡镇
+
+      $("#selTown").empty().append('<option value="">请选择乡/镇</option>');
+
+      if ($(this).val() != "") {
+
+        districtValue = $(this).val();//获取option的value,到时写进数据表
+
+        districtText = $(this).find("option:selected").text();  //获取Select选择的Text
+
+      }
+
+      //$("#fullAddress").html(provinceText);
+
+      showAddressInfo();
+
+      $.ajax({
+
+        url: '/customer/getTowns',
+
+        type: 'get',
+
+        data: {
+
+          "region_id": $(this).val()
+
+        }
+
+      }).done(function (data) {
+
+        //重新循环添加当前市的所有县
+
+        for (var i = 0; i < data.length; i++) {
+
+          $new = $("<option value=" + data[i].id + ">" + data[i].tname + "</option>");
+
+          $("#selTown").append($new);
+
+        }
+
+      });
+
+    });
+
+
+
+    //town-->street
+
+    $("#selTown").change(function () {
+
+      //同理，当选择的区发生改变时，清空之前选择的乡镇
+
+      $("#selStreet").empty().append('<option value="">请选择街道/社区</option>');
+
+      if ($(this).val() != "") {
+
+        townValue = $(this).val();//获取option的value,到时写进数据表
+
+        townText = $(this).find("option:selected").text();  //获取Select选择的Text
+
+      }
+
+      //$("#fullAddress").html(provinceText);
+
+      showAddressInfo();
+
+      $.ajax({
+
+        url: '/customer/getStreets',
+
+        type: 'get',
+
+        data: {
+
+          "town_id": $(this).val()
+
+        }
+
+      }).done(function (data) {
+
+        //重新循环添加当前市的所有县
+
+        for (var i = 0; i < data.length; i++) {
+
+          $new = $("<option value=" + data[i].id + ">" + data[i].sname + "</option>");
+
+          $("#selStreet").append($new);
+
+        }
+
+      });
+
+    });
+
+
+
+
+
+    $("#selStreet").change(function () {
+
+      if ($(this).val() != "") {
+
+        streetValue = $(this).val();
+
+        streetText = $(this).find("option:selected").text();  //获取Select选择的Text
+
+      }
+
+      showAddressInfo();
+
+    });
+
+
+
+    $("#detailAddress").change(function () {
+
+      detailAddress = $(this).val();
+
+      showAddressInfo();
+
+    });
+
+
+
+    function showAddressInfo() {
+
+      $("#fullAddress").html(provinceText + cityText + districtText + townText + streetText + detailAddress);
+
+    }
+
+
+
+
+
+  });
+
+</script>
+<script>
+  const provinceSelect = document.getElementById('province');
+  const citySelect = document.getElementById('city');
+  const regionSelect = document.getElementById('region');
+  const townSelect = document.getElementById('town');
+  const streetSelect = document.getElementById('street');
+  const detailInput = document.getElementById('detail');
+
+  function addAddress() {
+    const provinceId = provinceSelect.value;
+    const cityId = citySelect.value;
+    const regionId = regionSelect.value;
+    const townId = townSelect.value;
+    const streetId = streetSelect.value;
+    const detail = detailInput.value;
+
+    const data = {
+      province_id: provinceId,
+      city_id: cityId,
+      region_id: regionId,
+      town_id: townId,
+      street_id: streetId,
+      detail: detail
+    };
+    const body = JSON.stringify(data);
+
+    const url = 'http://localhost:8080/address/add';
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: body
+    })
+            .then(response => response.text())
+            .then(data => alert(data))
+            .catch(error => console.error(error));
+  }
+  function submitAddress() {
+    // 获取省份、城市、区县、乡镇和街道的 ID 参数
+    var provinceId = $('#selProvince').val();
+    var cityId = $('#selCity').val();
+    var districtId = $('#selDistrict').val();
+    var townId = $('#selTown').val();
+    var streetId = $('#selStreet').val();
+
+    // 获取其他地址信息参数
+    var name = $('#name').val();
+    var phone = $('#phone').val();
+    var address = $('#address').val();
+
+    // 构造请求参数
+    var data = {
+      provinceId: provinceId,
+      cityId: cityId,
+      districtId: districtId,
+      townId: townId,
+      streetId: streetId,
+      name: name,
+      phone: phone,
+      address: address
+    };
+
+    // 发送添加地址请求
+    $.ajax({
+      url: '/addAddress',
+      type: 'POST',
+      data: data,
+      success: function(response) {
+        // 处理添加地址成功的情况
+      },
+      error: function(xhr, status, error) {
+        // 处理添加地址失败的情况
+      }
+    });
+  }
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  function a() {
+    event.preventDefault(); // 阻止表单的默认提交行为
+
+    var addressData = {
+      selProvince: $("#selProvince").val(),
+      selCity: $("#selCity").val(),
+      selRegion: $("#selRegion").val(),
+      selTown: $("#selTown").val(),
+      selStreet: $("#selStreet").val(),
+      detailAddress: $("#detailAddress").val(),
+      fullAddress: $("#fullAddress").text()
+    };
+
+    $.ajax({
+      url: "/addAddress",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(addressData),
+      success: function (response) {
+        // 处理成功响应，例如关闭模态框并显示提示信息
+        alert("地址添加成功");
+        $("#modal-container-665221").modal("hide");
+      },
+      error: function (error) {
+        // 处理错误响应，例如显示错误信息
+        alert("地址添加失败，请重试");
+      }
+    });
+  }
+</script>

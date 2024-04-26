@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace指向mapper.xml所对应的Mapper接口-->
+
+<mapper namespace="com.example.demo.mapper.CityMapper">
+    <select id="findByProp" resultType="City" parameterType="HashMap">
+        select * from city
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="bname != null and bname != ''">
+                and bname like concat('%', #{bname}, '%')
+            </if>
+            <if test="prov_id != null">
+                and prov_id = #{prov_id}
+            </if>
+        </trim>
+    </select>
+    <select id="findById" parameterType="long" resultType="com.example.demo.pojo.City">
+        SELECT * FROM city WHERE id = #{id}
+    </select>
+</mapper>

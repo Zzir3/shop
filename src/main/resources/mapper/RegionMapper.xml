@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace指向mapper.xml所对应的Mapper接口-->
+
+<mapper namespace="com.example.demo.mapper.RegionMapper">
+    <!-- 模糊查询 -->
+
+    <select id="findByProp" resultType="Region" parameterType="HashMap">
+        select * from region
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="city_id != null and city_id != ''">
+                and city_id =#{city_id}
+            </if>
+        </trim>
+    </select>
+    <select id="findById" parameterType="long" resultType="com.example.demo.pojo.Region">
+        SELECT * FROM region WHERE id = #{id}
+    </select>
+</mapper>

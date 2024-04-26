@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace指向mapper.xml所对应的Mapper接口-->
+
+<mapper namespace="com.example.demo.mapper.ProvinceMapper">
+    <select id="findByProp" resultType="Province" parameterType="HashMap">
+        select * from province
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="id != null">
+                and id = #{id}
+            </if> <if test="ename != null and ename != ''">
+            and ename like concat('%', #{ename}, '%')
+        </if>
+        </trim>
+    </select>
+    <select id="findById" parameterType="long" resultType="com.example.demo.pojo.Province">
+        SELECT * FROM province WHERE id = #{id}
+    </select>
+</mapper>

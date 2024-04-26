@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+
+    <script th:src="@{/js/jquery-1.10.2.min.js}"></script>
+
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+
+    <script th:src="@{/js/echarts.min.js}"></script>
+
+    <title>密码管理</title>
+
+</head>
+
+<body>
+
+
+
+<div class="container">
+
+    <!--    header-->
+
+    <div class="row clearfix">
+
+        <div class="col-md-12 column" th:include="common/header.html">
+
+        </div>
+
+    </div>
+
+    <!--    center-->
+
+    <div class="row clearfix">
+
+        <!--        个人中心管理菜单-->
+
+        <div class="col-md-2 column" th:include="common/infoMenu.html">
+
+        </div>
+
+        <!--        个人中心相关管理子界面-->
+
+        <div class="col-md-9 column">
+
+
+            <div class="container">
+
+                <div class="row clearfix">
+
+                    <div class="col-md-3 column">
+
+                    </div>
+
+                    <div class="col-md-6 column">
+
+                        <h3 class="text-center">
+
+                            更改密码
+
+                        </h3>
+
+                        <form class="form-horizontal" role="form" action="/updatepass" method="POST">
+
+                            <div class="form-group">
+                                <label for="oldpass" class="col-sm-4 control-label">原始密码*</label>
+                                <div class="col-sm-6">
+                                    <input type="password" placeholder="请填写密码" name="pass" class="form-control" id="oldpass" required onblur="checkPass()"/>
+                                    <div id="exist"></div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="newpass" class="col-sm-4 control-label">新密码*</label>
+
+                                <div class="col-sm-6">
+
+                                    <input type="password" placeholder="请填写密码" name="newpass" class="form-control" id="newpass" required />
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="newpass" class="col-sm-4 control-label">确认新密码*</label>
+
+                                <div class="col-sm-6">
+
+                                    <input type="password" class="form-control" placeholder="请确认新密码" id="newpass1" required />
+
+                                    <div id="tp"></div>
+
+                                </div>
+
+                            </div>
+
+
+<!--                            <div class="form-group">-->
+
+<!--                                <label for="email" class="col-sm-4 control-label">邮箱*</label>-->
+
+<!--                                <div class="col-sm-6">-->
+
+<!--                                    <input type="password" placeholder="请填写邮箱" name="email" class="form-control"-->
+
+<!--                                           id="email" required />-->
+
+<!--                                </div>-->
+
+<!--                            </div>-->
+
+
+<!--                            <div class="form-group">-->
+
+<!--                                <label for="tel" class="col-sm-4 control-label">手机*</label>-->
+
+<!--                                <div class="col-sm-6">-->
+
+<!--                                    <input type="tel" placeholder="请填写手机号或固定电话" required name="tel" size="11" maxlength="11"-->
+
+<!--                                           class="form-control" id="tel" />-->
+
+<!--                                </div>-->
+
+<!--                                <span>获取验证码</span>-->
+
+<!--                            </div>-->
+
+<!--                            <div class="form-group">-->
+
+<!--                                <label for="input5" class="col-sm-4 control-label">验证码*</label>-->
+
+<!--                                <div class="col-sm-6">-->
+
+<!--                                    <input type="text" class="form-control" id="input5" placeholder="请填写验证码" required />-->
+
+<!--                                </div>-->
+
+<!--                            </div>-->
+
+                            <div class="form-group">
+
+                                <div class="col-sm-offset-4 col-sm-5  text-center">
+
+                                    <button type="submit" class="btn btn-default btn-block btn-primary" />
+
+                                   确认
+
+                                    </input>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                    <div class="col-md-3 column">
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!--    footer-->
+
+    <div class="row clearfix">
+
+        <div class="col-md-12 column" th:include="/common/footer.html">
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
+<script>
+    var newpass = $('#newpass');
+    var newpass1 = $('#newpass1');
+    newpass1.blur(function () {
+        var v1 = newpass1.val();
+        var v2 = newpass.val();
+        if (v1 != v2) {
+            $('#tp').html("二次密码不一致");
+            $('#tp').css("color", "red");
+            newpass.focus();
+        } else {
+            $('#tp').html("");
+        }
+    });
+</script>
+
+
+
+<script>
+    function checkPass() {
+        //获取输入框对象
+        var oldpass = $('#oldpass');
+
+        //异步发送数据，测试是否存在此账号
+        $.ajax({
+            type: "post", //访问方式
+            url: "/customer/passIsCorrect", //访问路径
+            data: {
+                "pass": oldpass.val()
+            },
+            dataType: "json",
+            success: function (message) {
+                if (message == 0) {
+                    //对象获得焦点
+                    oldpass.focus();
+                    //给对象内容赋值
+                    $('#exist').html("原始密码不对");
+                    //更改对象样式
+                    $('#exist').css("color", "red");
+                } else {
+                    $('#exist').html("");
+                }
+            },
+            error: function (err) {
+                alert("请求出错了" + JSON.stringify(err));
+            }
+        });
+    }
+    //判断密码一不一致
+</script>

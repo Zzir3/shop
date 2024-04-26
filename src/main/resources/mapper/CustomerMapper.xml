@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace指向mapper.xml所对应的Mapper接口-->
+
+<mapper namespace="com.example.demo.mapper.CustomerMapper">
+<select id="findByUandP" resultType="Customer" parameterType="string">
+       select * from customer where username = #{username} and pass = #{pass}
+</select>
+       
+       <select id="usernameIsExist" resultType="int" parameterType="String">
+              select count(1) as count from customer where username=#{username}
+       </select>
+       
+       <select id="telIsExist" resultType="int" parameterType="String">
+              select count(1) as count from customer where tel=#{tel}
+       </select>
+       <select id="emailIsExist" resultType="int" parameterType="String">
+              select count(1) as count from customer where email=#{email}
+       </select>
+       <select id="cardIDIsExist" resultType="int" parameterType="String">
+              select count(1) as count from customer where cardID=#{cardID}
+       </select>
+       <update id="updateUserInfo" parameterType="Customer">
+              UPDATE customer
+              SET username=#{username} ,realname=#{realname}, intro=#{intro},  tel=#{tel}, email=#{email}, gender=#{gender}, cardID=#{cardID}
+              WHERE username=#{username}
+       </update>
+       <select id="passIsCorrect" resultType="int" parameterType="String">
+              select count(1) as count from customer where pass=#{pass}
+       </select>
+
+       <!--    findById：根据ID（入参类型为int）精确查询，查询结果映射Customer对象-->
+
+       <select id="findById" parameterType="int" resultType="Customer">
+
+              select * from customer where id=#{id}
+
+       </select>
+
+       <!-- 模糊查询 -->
+
+       <select id="findByProp" resultType="Customer" parameterType="HashMap">
+
+              select * from customer
+
+              <trim prefix="where" prefixOverrides="and | or">
+
+                     <if test="username != null and username != ''">
+
+                            and username =#{username}
+
+                     </if>
+
+                     <if test="pass != null and pass != ''">
+
+                            and pass =#{pass}
+
+                     </if>
+
+              </trim>
+
+       </select>
+
+       <!-- 增加用户 -->
+
+       <insert id="insert" parameterType="Customer">
+
+              insert into customer(username,pass,tel,email)
+
+              values (#{username},#{pass},#{tel},#{email})
+
+       </insert>
+
+       <!-- 修改用户信息 -->
+       <update id="update" parameterType="Customer">
+
+              update customer
+
+              <trim prefix="set" suffixOverrides="," suffix="where id = #{id}">
+
+                     <!--            <if test="realname != null">realname=#{realname},</if>-->
+
+                     <!--            <if test="intro != null">intro=#{intro},</if>-->
+
+                     <!--            <if test="pass != null">pass=#{pass},</if>-->
+
+                     <!--            <if test="gender != null">gender=#{gender},</if>-->
+
+                     <!--            <if test="tel != null">tel=#{tel},</if>-->
+
+                     <if test="imgUrl != null">imgUrl=#{imgUrl},</if>
+
+                     <!--            <if test="email != null">email=#{email},</if>-->
+
+                     <!--            <if test="cardID != null">cardID=#{cardID},</if>-->
+
+              </trim>
+
+       </update>
+       <update id="updatepass" parameterType="Customer">
+              update  customer set pass=#{newpass} where username=#{username}
+       </update>
+</mapper>

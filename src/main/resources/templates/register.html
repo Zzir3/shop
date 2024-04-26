@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <link rel="stylesheet" th:href="@{css/bootstrap.min.css}">
+
+    <script th:src="@{js/jquery-1.10.2.min.js}"></script>
+
+    <script th:src="@{js/bootstrap.min.js}"></script>
+
+    <script th:src="@{js/echarts.min.js}"></script>
+
+    <title>会员注册</title>
+
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <div class="row clearfix">
+
+        <div class="col-md-3 column">
+
+        </div>
+
+        <div class="col-md-6 column">
+
+            <h3 class="text-center">
+
+                注册页面
+
+            </h3>
+
+            <form class="form-horizontal" role="form" action="/doReg" method="post">
+
+                <div class="form-group">
+
+                    <label for="username" class="col-sm-4 control-label">账号*</label>
+
+                    <div class="col-sm-6">
+
+                        <input type="text" placeholder="请填写账号" class="form-control" id="username" name="username"
+
+                               required />
+
+                    </div>
+
+                    <span id="exist"></span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password" class="col-sm-4 control-label">密码*</label>
+
+                    <div class="col-sm-6">
+
+                        <input type="password" placeholder="请填写密码" name="pass" class="form-control"
+
+                               id="password" required />
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password" class="col-sm-4 control-label">确认密码*</label>
+
+                    <div class="col-sm-6">
+
+                        <input type="password" class="form-control" placeholder="请确认密码" required />
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="tel" class="col-sm-4 control-label">手机*</label>
+
+                    <div class="col-sm-6">
+
+                        <input type="tel" placeholder="请填写手机号或固定电话" required name="tel" size="11" maxlength="11"
+
+                               class="form-control" id="tel" />
+
+                    </div>
+
+                    <span>获取验证码</span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="input5" class="col-sm-4 control-label">验证码*</label>
+
+                    <div class="col-sm-6">
+
+                        <input type="text" class="form-control" id="input5" placeholder="请填写验证码" required />
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <div class="col-sm-offset-4 col-sm-5  text-center">
+
+                        <button type="submit" class="btn btn-default btn-block btn-primary" />
+
+                        注&nbsp;&nbsp;&nbsp;册
+
+                        </input>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="col-md-3 column">
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+
+
+</html>
+
+<script>
+
+    $(function () {
+
+        var objUsername = $("#username");//选取账号输入框
+
+        //触发失去焦点事件
+
+        objUsername.blur(function () {
+
+            //
+
+            //异步送出数据，至控制层，测试是否存在此账号
+
+            $.ajax({
+
+                type: "post", //访问方式
+
+                url: "/customer/usernameIsExist", //访问路径
+
+                data: {//传入服务端的数据
+
+                    "username": objUsername.val()
+
+                },
+
+                dataType: "json",
+
+                //调整成功后事件 message为服务器返回的值
+
+                success: function (message) {
+
+                    if (message == 1) {
+
+                        //对象获得焦点
+
+                        objUsername.focus();
+
+                        //给对象内容赋值
+
+                        $('#exist').html("账号已被占用");
+
+                        //更改对象样式
+
+                        $('#exist').css("color", "red");
+
+                    } else {
+
+                        $('#exist').html("账号可使用");
+
+                        $('#exist').css("color", "green");
+
+                    }
+
+                },
+
+                //若调用错误，则执行此事件
+
+                error: function (err) {
+
+                    alert("请求出错了" + JSON.stringify(err));
+
+                }
+
+            });//end of ajax
+
+        });//end of blur
+
+    });
+
+</script>
+
+<script>
+
+    $(function () {
+
+        var objTel = $("#tel");//选取账号输入框
+
+        //触发失去焦点事件
+
+        objTel.blur(function () {
+
+            //
+
+            //异步送出数据，至控制层，测试是否存在此账号
+
+            $.ajax({
+
+                type: "post", //访问方式
+
+                url: "/customer/telIsExist", //访问路径
+
+                data: {//传入服务端的数据
+
+                    "tel": objTel.val()
+
+                },
+
+                dataType: "json",
+
+                //调整成功后事件 message为服务器返回的值
+
+                success: function (message) {
+
+                    if (message == 1) {
+
+                        //对象获得焦点
+
+                        objTel.focus();
+
+                        //给对象内容赋值
+
+                        $('#exist').html("手机号已被占用");
+
+                        //更改对象样式
+
+                        $('#exist').css("color", "red");
+
+                    } else {
+
+                        $('#exist').html("手机号可使用");
+
+                        $('#exist').css("color", "green");
+
+                    }
+
+                },
+
+                //若调用错误，则执行此事件
+
+                error: function (err) {
+
+                    alert("请求出错了" + JSON.stringify(err));
+
+                }
+
+            });//end of ajax
+
+        });//end of blur
+
+    });
+
+</script>
+

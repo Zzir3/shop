@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <link rel="stylesheet" th:href="@{../css/bootstrap.min.css}">
+
+    <script th:src="@{../js/jquery-1.10.2.min.js}"></script>
+
+    <script th:src="@{../js/bootstrap.min.js}"></script>
+
+    <script th:src="@{../js/echarts.min.js}"></script>
+
+    <title>商品分类管理</title>
+
+</head>
+
+<body>
+
+<!--全部数据-->
+
+<!--<hr>-->
+
+<!--<span th:text="${data}">-->
+
+<div class="container">
+
+    <div class="row clearfix">
+
+        <div class="col-md-12 column">
+
+            <h2 class="text-center">
+
+                商城后台管理系统
+
+            </h2>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-2 column">
+
+        <div th:include="/common/asideMenu.html">
+
+        </div>
+
+    </div>
+
+    <div class="row clearfix">
+
+        <div class="col-md-9 column">
+
+            <div class="row clearfix">
+
+                <div class="col-md-12  text-center">
+
+                    <h3 style="margin:30px auto;">商品分类管理</h3>
+
+                </div>
+
+            </div>
+
+            <nav class="navbar navbar-default" role="navigation">
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                    <ul class="nav navbar-nav">
+
+                        <li>
+
+                            <div class="navbar-form navbar-left">
+
+                                <a id="add" href="#modal-add" role="button" data-toggle="modal"
+
+                                   class="btn btn-danger">新增</a>
+
+                            </div>
+
+                            <!--modal code  -->
+
+                            <div class="modal fade" id="modal-add" role="dialog" aria-labelledby="myModalLabel"
+
+                                 aria-hidden="true">
+
+                                <div class="modal-dialog">
+
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+
+                                            <button type="button" class="close" data-dismiss="modal"
+
+                                                    aria-hidden="true">×
+
+                                            </button>
+
+                                            <h4 class="modal-title" id="myModalLabel">
+
+                                                新增/修改
+
+                                            </h4>
+
+                                        </div>
+
+                                        <form class="form-horizontal" role="form" action="/category/update">
+
+                                            <div class="modal-body">
+
+                                                <div class="form-group">
+
+                                                    <label for="id" class="col-sm-2 control-label">编号</label>
+
+                                                    <div class="col-sm-8">
+
+                                                        <input type="text" class="form-control" id="id" name="id"
+
+                                                               readonly/>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="form-group">
+
+                                                    <label for="code" class="col-sm-2 control-label">内部编码</label>
+
+                                                    <div class="col-sm-8">
+
+                                                        <input type="text" class="form-control" id="code" name="code"
+
+                                                               required/>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="form-group">
+
+                                                    <label for="aname" class="col-sm-2 control-label">类型名称</label>
+
+                                                    <div class="col-sm-8">
+
+                                                        <input type="text" class="form-control" id="aname" name="aname"
+
+                                                               required/>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="form-group">
+
+                                                    <label for="isShow" class="col-sm-2 control-label">是否展示</label>
+
+                                                    <div class="col-sm-8">
+
+                                                        <select name="isShow" id="isShow" class="form-control">
+
+                                                            <option value="1">不显示</option>
+
+                                                            <option value="0">显示</option>
+
+                                                        </select>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="modal-footer">
+
+                                                <button type="button" class="btn btn-default"
+
+                                                        data-dismiss="modal">关闭
+
+                                                </button>
+
+                                                <button type="submit"
+
+                                                        class="btn btn-primary">保存
+
+                                                </button>
+
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </li>
+
+                        <li>
+
+                            <div class="navbar-form navbar-left">
+
+                                <a id="update" href="#modal-add" role="button" data-toggle="modal"
+
+                                   class="btn btn-primary">修改</a>
+
+                            </div>
+
+                        </li>
+
+                    </ul>
+
+                    <form class="navbar-form navbar-left" role="search" action="/category/manage">
+
+                        <div class="form-group">
+
+                            <input type="text" class="form-control" name="qInfo"/>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-success">查询</button>
+
+                    </form>
+
+                </div>
+
+            </nav>
+
+            <table class="table">
+
+                <thead>
+
+                <tr>
+
+                    <th>
+
+                        ID
+
+                    </th>
+
+                    <th>
+
+                        内部编码
+
+                    </th>
+
+                    <th>
+
+                        名称
+
+                    </th>
+
+                    <th>
+
+                        所属分类
+
+                    </th>
+
+                    <th>
+
+                        是否显示
+
+                    </th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="cate:${data.list}" class="trData" th:switch="${cate.isShow}">
+
+                    <td>
+
+                        <span th:text="${cate.id}" class="tr_id"></span>
+
+                    </td>
+
+                    <td>
+
+                        <span th:text="${cate.code}" class="tr_code"></span>
+
+                    </td>
+
+                    <td>
+
+                        <span th:text="${cate.aname}" class="tr_aname"></span>
+
+                    </td>
+
+                    <td>
+
+                        <span th:text="${cate.pid}" class="tr_pid"></span>
+
+                    </td>
+
+                    <td>
+
+                        <span th:case="'0'" class="tr_isShow">
+
+                            显示
+
+                        </span>
+
+                        <span th:case="'1'" class="tr_isShow">
+
+                            不显示
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+            <ul class="pagination justify-content-end" style="float: right">
+                <!--首页-->
+                <li class="page-item">
+                    <a class="page-link" th:href="'/category/manage?pageNum='+${data.navigateFirstPage}">首页</a>
+                </li>
+                <!--上一页-->
+                <li class="page-item">
+                    <a class="page-link" th:href="'/category/manage?pageNum='+${data.prePage}">上一页</a>
+                </li>
+                <!--循环遍历显示中间的页数-->
+                <li th:each="list:${data.navigatepageNums}">
+                    <a th:href="'/category/manage?pageNum='+${list}" th:text="${list}" th:if="${list != data.pageNum}"></a>
+                    <span style="font-weight: bold;background: #6faed9;" th:if="${list == data.pageNum}" th:text="${list}" ></span>
+                </li>
+                <!--下一页-->
+                <li class="page-item" th:if="${data.hasNextPage}">
+                    <a class="page-link" th:href="'/category/manage?pageNum='+${data.nextPage}">下一页</a>
+                </li>
+                <!--尾页-->
+                <li class="page-item"><a class="page-link" th:href="'/category/manage?pageNum='+${data.navigateLastPage}">尾页</a></li>
+            </ul>
+
+            <div class="col-md-3 column">
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</body>
+
+</html>
+
+
+
+<script>
+
+    $(function () {
+
+        $('#add').click(function () {
+
+            $("#id").val("")
+
+        })
+
+        //表格行的单击事件
+
+        $(".trData").each(function () {
+
+            $(this).click(function () {
+
+                //在当前节点下找类名tr_id的子节点，并获取其HTML的内容
+
+                id_val = $(this).find(".tr_id").html();
+
+                //去除多余空格
+
+                id_val = $.trim(id_val);
+
+                //为form对象赋值
+
+                $("#id").val(id_val);
+
+
+
+
+
+                //在当前节点下找类名tr_aname的子节点，并获取其HTML的内容
+
+                aname_val = $(this).find(".tr_aname").html();
+
+                aname_val = $.trim(aname_val);
+
+                $("#aname").val(aname_val);
+
+
+
+                //在当前节点下找类名tr_name的子节点，并获取其HTML的内容
+
+                code_val = $(this).find(".tr_code").html();
+
+                code_val = $.trim(code_val);
+
+                $("#code").val(code_val);
+
+
+
+                //在当前节点下找类名tr_idDel的子节点，并获取其HTML的内容
+
+                isDel_val = $(this).find(".tr_isDel").html();
+
+                isDel_val = $.trim(isDel_val);
+
+                $("#isDel").val(isDel_val);
+
+
+
+
+
+                //alert(name_val);
+
+            });
+
+        });
+
+    });
+
+</script>
+

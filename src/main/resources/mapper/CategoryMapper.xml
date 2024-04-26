@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace指向mapper.xml所对应的Mapper接口-->
+
+<mapper namespace="com.example.demo.mapper.CategoryMapper">
+
+    <select id="findById" parameterType="int" resultType="Category">
+        select * from category where id=#{id}
+    </select>
+
+
+     <select id="findByProp" resultType="Category" parameterType="HashMap">
+    select * from category
+         <trim prefix="where" prefixOverrides="and | or">
+             <if test="code !=null and code !=''">
+                 and code like CONCAT ('%',#{code},'%')
+             </if>
+             <if test="aname !=null">
+                 or aname like CONCAT ('%',#{aname},'%')
+             </if>
+         </trim>
+     </select>
+
+    <insert id="insert" parameterType="Category">
+        insert into category(code,aname,pid,isShow) values(#{code},#{aname},#{pid},#{isShow})
+    </insert>
+
+    <update id="update" parameterType="Category">
+        update category
+       <trim prefix="set" suffixOverrides="," suffix="where id = #{id}">
+           <if test="code !=null">code=#{code},</if>
+            <if test="aname !=null">aname=#{aname},</if>
+            <if test="pid !=null">pid=#{pid},</if>
+            <if test="isShow !=null">isShow=#{isShow},</if>
+       </trim>
+    </update>
+
+    <delete id="delete" parameterType="Integer">
+        delete from category where id=#{id}
+    </delete>
+</mapper>
+
+
+
